@@ -196,6 +196,8 @@ def insertar_datos(conexion: pymysql.connections.Connection) -> None:
         with open('./data/usuarios_filtrado.tsv', 'r', encoding='utf-8') as f:
             usuarios = f.readlines()
 
+    print('Datos filtrados correctamente')
+
     # Pasemoslo ahora al formato que nos interesa a la hora de insertar datos
     usuarios = separar_tabs(usuarios[1:])
     escuchas = separar_tabs(escuchas[1:])
@@ -253,10 +255,12 @@ def main() -> pymysql.connections.Connection:
         user = re.sub('Usuario:', '', archivo.readline()).strip()
         password = re.sub('Clave:', '', archivo.readline()).strip()
         DATA_PATH = re.sub('PATH:', '', archivo.readline()).strip()
-    print(user, password, DATA_PATH)
 
     conn = crear_db(user, password, nombre_db)
+    print('Base de datos creada correctamente')
     crear_tablas(conn)
+    print('Tablas creadas correctamente')
     insertar_datos(conn)
+    print('Todos los datos han sido insertados correctamente')
 
     return conn
