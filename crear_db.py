@@ -1,3 +1,4 @@
+from time import time
 import pymysql
 import os
 import re
@@ -264,3 +265,8 @@ def main() -> pymysql.connections.Connection:
     print('Todos los datos han sido insertados correctamente')
 
     return conn
+
+
+if __name__ == '__main__':
+
+    main()
