@@ -43,7 +43,8 @@ def crear_conexion(
 
 def crear_db(
                 user: str, password: str,
-                nombre: str) -> pymysql.connections.Connection:
+                nombre: str
+            ) -> pymysql.connections.Connection:
     '''
     Crea una base de datos dentro de nuestra conexión
 
@@ -177,7 +178,7 @@ def insertar_datos(conexion: pymysql.connections.Connection) -> None:
     # Veamos si existen los archivos
     limpieza_necesaria = False
     for archivo in archivos_necesarios:
-        if not os.path.isfile(f'./data/{archivo}'):
+        if not os.path.isfile(f'{DATA_PATH}/{archivo}'):
             limpieza_necesaria = True
             break
 
@@ -212,29 +213,33 @@ def insertar_datos(conexion: pymysql.connections.Connection) -> None:
                     VALUES(%s, %s, %s, %s, %s)"""
     cursor.executemany(sql_usuarios, usuarios)
     conexion.commit()
+    print('Usuarios registrados')
 
     sql_artistas = """INSERT INTO artistas
                     (ID, ARTID, ARTNAME)
                     VALUES(%s, %s, %s)"""
     cursor.executemany(sql_artistas, artistas)
     conexion.commit()
+    print('Artistas registrados')
 
     sql_canciones = """INSERT INTO canciones
                     (ID, TRAID, TRANAME)
                     VALUES(%s, %s, %s)"""
     cursor.executemany(sql_canciones, canciones)
     conexion.commit()
+    print('Canciones registradas')
 
     sql_escuchas = """INSERT INTO escuchas
                     (ID, USERID, ARTID, TRAID, FECHA)
                     VALUES(%s, %s, %s, %s, %s)"""
     cursor.executemany(sql_escuchas, escuchas)
     conexion.commit()
+    print('Escuchas actualizadas')
 
     cursor.close()
 
 
-def main() -> pymysql.connections.Connection:
+def main():
     '''
     Ejecuta el programa, en el cual se seguirán los siguientes pasos:
         - Filtrar los datos para recuperar los valores que nos interesan
@@ -251,7 +256,7 @@ def main() -> pymysql.connections.Connection:
     '''
     global DATA_PATH
 
-    nombre_db = "lastfm"
+    nombre_db = "Lastfm"
     with open('./config.txt', 'r') as archivo:
         user = re.sub('Usuario:', '', archivo.readline()).strip()
         password = re.sub('Clave:', '', archivo.readline()).strip()
@@ -264,7 +269,7 @@ def main() -> pymysql.connections.Connection:
     insertar_datos(conn)
     print('Todos los datos han sido insertados correctamente')
 
-    return conn
+    return
 
 
 if __name__ == '__main__':

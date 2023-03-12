@@ -69,13 +69,13 @@ def filtrar_escuchas(path: str):
                 escuchas.append('\t'.join(escucha))
                 i += 1
 
-    with open('./data/escuchas_filtrado.tsv', 'w', encoding='utf-8') as file:
+    with open(f'{path}/escuchas_filtrado.tsv', 'w', encoding='utf-8') as file:
         file.writelines(escuchas)
 
-    with open('./data/artistas_filtrado.tsv', 'w', encoding='utf-8') as file:
+    with open(f'{path}/artistas_filtrado.tsv', 'w', encoding='utf-8') as file:
         file.writelines(artistas)
 
-    with open('./data/canciones_filtrado.tsv', 'w', encoding='utf-8') as file:
+    with open(f'{path}/canciones_filtrado.tsv', 'w', encoding='utf-8') as file:
         file.writelines(canciones)
 
     return escuchas, canciones, artistas
@@ -103,7 +103,7 @@ def formatear_usuarios(path: str):
             usuarios.append('\t'.join(cadena) + '\n')
             linea = fichero.readline()
 
-    with open('./data/usuarios_filtrado.tsv', 'w', encoding='utf-8') as file:
+    with open(f'{path}/usuarios_filtrado.tsv', 'w', encoding='utf-8') as file:
         file.writelines(usuarios)
 
     return usuarios
