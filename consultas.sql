@@ -6,7 +6,8 @@ USE Lastfm;
 
 SELECT COUNT(DISTINCT e.USERID) AS Usuarios_unicos
 FROM escuchas AS e
-INNER JOIN artistas AS a ON e.ARTID = a.ID
+INNER JOIN canciones AS c ON c.ID = e.TRAID
+INNER JOIN artistas AS a ON c.ARTID = a.ID
 WHERE a.ARTNAME = 'Led Zeppelin';
 
 
@@ -15,7 +16,8 @@ WHERE a.ARTNAME = 'Led Zeppelin';
 
 SELECT COUNT(DISTINCT e.USERID) AS Usuarios_unicos
 FROM escuchas AS e
-INNER JOIN artistas AS a ON e.ARTID = a.ID
+INNER JOIN canciones AS c ON c.ID = e.TRAID
+INNER JOIN artistas AS a ON c.ARTID = a.ID
 INNER JOIN usuarios AS u ON e.USERID = u.ID
 WHERE a.ARTNAME = 'Madonna'
 AND u.GENERO = 'f';
@@ -27,12 +29,23 @@ AND u.GENERO = 'f';
 
 -- Suponemos que siguen siendo usuarios únicos
 
-SELECT COUNT(DISTINCT e.USERID) AS Usuarios_unicos
+
+SELECT COUNT(*) AS NUM_USUARIOS
+FROM (
+-- Usuarios de españa
+SELECT DISTINCT u.ID
+FROM usuarios AS u
+WHERE u.PAIS = 'Spain'
+
+UNION
+
+-- Usuarios que han escuchado a ’Red Hot Chili Peppers’
+SELECT DISTINCT e.USERID
 FROM escuchas AS e
-INNER JOIN artistas AS a ON e.ARTID = a.ID
-INNER JOIN usuarios AS u ON e.USERID = u.ID
-WHERE (a.ARTNAME = 'Red Hot Chili Peppers'
-OR u.PAIS = 'Spain');
+INNER JOIN canciones AS c ON c.ID = e.TRAID
+INNER JOIN artistas AS a ON c.ARTID = a.ID
+WHERE a.ARTNAME = 'Red Hot Chili Peppers') AS tmp;
+
 
 -- CONSULTA 4
 -- Obtener la media del total de escuchas de los usuarios
@@ -95,12 +108,12 @@ LIMIT 15;
 
 -- Agrupado por usuarios
 SELECT e.USERID, (COUNT(e.ID)/(SELECT COUNT(e2.ID) FROM escuchas AS e2))*100 AS porcentaje_escuchas
-		FROM escuchas AS e
-		INNER JOIN usuarios AS u ON u.ID = e.USERID
-		WHERE u.EDAD > (SELECT AVG(u2.EDAD)
-						FROM usuarios AS u2
-						WHERE u2.EDAD <> 0) -- Los valores nulos NO se usan de por si
-		GROUP BY e.USERID;
+FROM escuchas AS e
+INNER JOIN usuarios AS u ON u.ID = e.USERID
+WHERE u.EDAD > (SELECT AVG(u2.EDAD)
+				FROM usuarios AS u2
+				WHERE u2.EDAD <> 0) -- Los valores nulos NO se usan de por si
+GROUP BY e.USERID;
 
 -- Total
 
@@ -113,5 +126,6 @@ FROM (SELECT (COUNT(e.ID)/(SELECT COUNT(e2.ID) FROM escuchas AS e2))*100 AS porc
 						WHERE u2.EDAD <> 0) -- Los valores nulos NO se usan de por si
 		GROUP BY e.USERID) AS tmp;
  
+
 
 
