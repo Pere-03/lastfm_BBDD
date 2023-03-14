@@ -15,8 +15,8 @@ def filtrar_escuchas(path: str):
         canciones: lista con las canciones
         artistas: lista con los artistas
     '''
-    escuchas = ['id\tuser_id\ttimestamp\tid_artista\tid_cancion\n']
-    canciones = ['id\tid_cancion\tnombre_cancion\n']
+    escuchas = ['id\tuser_id\tid_cancion\ttimestamp\n']
+    canciones = ['id\tid_cancion\tnombre_cancion\tid_artista\n']
     artistas = ['id\tid_artista\tnombre_artista\n']
     artistas_guardados = {}
     canciones_guardadas = {}
@@ -33,7 +33,7 @@ def filtrar_escuchas(path: str):
             fragmentos[3] += '\n'
 
             if fragmentos[4]:
-                # Veamos si ya eciste el artista
+                # Veamos si ya existe el artista
                 artista = artistas_guardados.get(fragmentos[2], False)
                 if artista:
                     artista_actual = str(artista)
@@ -51,7 +51,9 @@ def filtrar_escuchas(path: str):
                 else:
                     canciones_guardadas[fragmentos[4]] = id_cancion
                     cancion_actual = id_cancion
-                    cancion = [str(cancion_actual)] + fragmentos[4:6]
+                    cancion = [str(cancion_actual)] + fragmentos[4:5]
+                    # Quitamos el \n del final, y añadimos el id del artista
+                    cancion += [fragmentos[5][:-1], f'{artista_actual}\n']
                     canciones.append(
                                     '\t'.join(cancion)
                                     )
@@ -64,8 +66,9 @@ def filtrar_escuchas(path: str):
                 else:
                     fecha = fragmentos[1]
                 escucha = [
-                            str(i), fragmentos[0][-6:], str(artista_actual),
-                            str(cancion_actual), f'{fecha}\n']
+                            str(i), fragmentos[0][-6:],
+                            str(cancion_actual), f'{fecha}\n'
+                        ]
                 escuchas.append('\t'.join(escucha))
                 i += 1
 

@@ -93,13 +93,25 @@ LIMIT 15;
 
 -- Aunque sabemos que hay 1000000 escuchas, las calcularemos igualente
 
-SELECT (COUNT(e.ID)/(SELECT COUNT(ID) FROM ESCUCHAS))*100 AS porcentaje_escuchas
-FROM escuchas AS e
-INNER JOIN usuarios AS u ON u.ID = e.USERID
-WHERE u.EDAD > (SELECT AVG(u2.EDAD)
-				FROM usuarios AS u2
-				WHERE u2.EDAD <> 0) -- Los valores nulos NO se usan de por si
-GROUP BY e.USERID;
+-- Agrupado por usuarios
+SELECT e.USERID, (COUNT(e.ID)/(SELECT COUNT(e2.ID) FROM escuchas AS e2))*100 AS porcentaje_escuchas
+		FROM escuchas AS e
+		INNER JOIN usuarios AS u ON u.ID = e.USERID
+		WHERE u.EDAD > (SELECT AVG(u2.EDAD)
+						FROM usuarios AS u2
+						WHERE u2.EDAD <> 0) -- Los valores nulos NO se usan de por si
+		GROUP BY e.USERID;
 
+-- Total
+
+SELECT SUM(tmp.porcentaje_escuchas)
+FROM (SELECT (COUNT(e.ID)/(SELECT COUNT(e2.ID) FROM escuchas AS e2))*100 AS porcentaje_escuchas
+		FROM escuchas AS e
+		INNER JOIN usuarios AS u ON u.ID = e.USERID
+		WHERE u.EDAD > (SELECT AVG(u2.EDAD)
+						FROM usuarios AS u2
+						WHERE u2.EDAD <> 0) -- Los valores nulos NO se usan de por si
+		GROUP BY e.USERID) AS tmp;
+ 
 
 

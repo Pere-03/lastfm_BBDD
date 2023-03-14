@@ -1,4 +1,3 @@
-from time import time
 import pymysql
 import os
 import re
@@ -93,13 +92,6 @@ def crear_tablas(conexion: pymysql.connections.Connection) -> None:
                         PRIMARY KEY (ID))'''
     cursor.execute(sql_usuarios)
 
-    sql_canciones = '''CREATE TABLE canciones (
-                        ID int(6) NOT NULL,
-                        TRAID varchar(36),
-                        TRANAME varchar(140),
-                        PRIMARY KEY (ID))'''
-    cursor.execute(sql_canciones)
-
     sql_artistas = '''
         CREATE TABLE artistas (
             ID int(6) NOT NULL,
@@ -110,20 +102,28 @@ def crear_tablas(conexion: pymysql.connections.Connection) -> None:
         '''
     cursor.execute(sql_artistas)
 
+    sql_canciones = '''CREATE TABLE canciones (
+                        ID int(6) NOT NULL,
+                        TRAID varchar(36),
+                        TRANAME varchar(140),
+                        ARTID int(6),
+                        PRIMARY KEY (ID),
+
+                        CONSTRAINT canciones_ibfk_1 FOREIGN KEY (ARTID)
+                        REFERENCES artistas (ID) ON DELETE CASCADE)'''
+    cursor.execute(sql_canciones)
+
     sql_escuchas = '''CREATE TABLE escuchas(
                         ID int(7) NOT NULL,
                         USERID int(4),
-                        ARTID int(6),
                         TRAID int(6),
                         FECHA datetime,
                         PRIMARY KEY (ID),
+
                         CONSTRAINT escuchas_ibfk_1 FOREIGN KEY (USERID)
                         REFERENCES usuarios (ID) ON DELETE CASCADE,
 
-                        CONSTRAINT escuchas_ibfk_2 FOREIGN KEY (ARTID)
-                        REFERENCES artistas (ID) ON DELETE CASCADE,
-
-                        CONSTRAINT escuchas_ibfk_3 FOREIGN KEY (TRAID)
+                        CONSTRAINT escuchas_ibfk_2 FOREIGN KEY (TRAID)
                         REFERENCES canciones (ID) ON DELETE CASCADE)'''
     cursor.execute(sql_escuchas)
     cursor.close()
@@ -186,16 +186,28 @@ def insertar_datos(conexion: pymysql.connections.Connection) -> None:
     if limpieza_necesaria:
         escuchas, canciones, artistas, usuarios = filtrar_datos(DATA_PATH)
     else:
-        with open('./data/escuchas_filtrado.tsv', 'r', encoding='utf-8') as f:
+        with open(
+                    f'{DATA_PATH}/escuchas_filtrado.tsv', 'r',
+                    encoding='utf-8'
+                ) as f:
             escuchas = f.readlines()
 
-        with open('./data/artistas_filtrado.tsv', 'r', encoding='utf-8') as f:
+        with open(
+                    f'{DATA_PATH}/artistas_filtrado.tsv', 'r',
+                    encoding='utf-8'
+                ) as f:
             artistas = f.readlines()
 
-        with open('./data/canciones_filtrado.tsv', 'r', encoding='utf-8') as f:
+        with open(
+                    f'{DATA_PATH}/canciones_filtrado.tsv', 'r',
+                    encoding='utf-8'
+                ) as f:
             canciones = f.readlines()
 
-        with open('./data/usuarios_filtrado.tsv', 'r', encoding='utf-8') as f:
+        with open(
+                    f'{DATA_PATH}/usuarios_filtrado.tsv', 'r',
+                    encoding='utf-8'
+                ) as f:
             usuarios = f.readlines()
 
     print('Datos filtrados correctamente')
@@ -223,15 +235,15 @@ def insertar_datos(conexion: pymysql.connections.Connection) -> None:
     print('Artistas registrados')
 
     sql_canciones = """INSERT INTO canciones
-                    (ID, TRAID, TRANAME)
-                    VALUES(%s, %s, %s)"""
+                    (ID, TRAID, TRANAME, ARTID)
+                    VALUES(%s, %s, %s, %s)"""
     cursor.executemany(sql_canciones, canciones)
     conexion.commit()
     print('Canciones registradas')
 
     sql_escuchas = """INSERT INTO escuchas
-                    (ID, USERID, ARTID, TRAID, FECHA)
-                    VALUES(%s, %s, %s, %s, %s)"""
+                    (ID, USERID, TRAID, FECHA)
+                    VALUES(%s, %s, %s, %s)"""
     cursor.executemany(sql_escuchas, escuchas)
     conexion.commit()
     print('Escuchas actualizadas')
@@ -273,5 +285,4 @@ def main():
 
 
 if __name__ == '__main__':
-
     main()
